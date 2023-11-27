@@ -32,6 +32,16 @@ python main.py
 ```
 This will output the KML directly to the console.
 
+5. Copy the KML output and save it to a file (e.g., output.kml).
+
+6. Import KML to Google My Maps:
+- Visit Google My Maps.
+- Create a new map or open an existing one.
+- Click on the "Import" button in the left panel.
+- Select the output.kml file you generated.
+- Customize the map style and settings as needed.
+- Click "Import" to add the KML data to your map.
+
 ## File Structure
 
 - main.py: The main script containing the code for reading pcap files, extracting IP addresses, and generating KML.

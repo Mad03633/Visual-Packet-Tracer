@@ -1,18 +1,19 @@
 import dpkt
 import socket
 import pygeoip
+from typing import Dict
 
 gi = pygeoip.GeoIP('GeoLiteCity.dat')
 
-def retKML(dstip, srcip):
-    dst = gi.record_by_name(dstip)
-    src = gi.record_by_name('x.xxx.xxx.xxx')
+def retKML(dstip: str, srcip: str) -> str:
+    dst: Dict[str, float] = gi.record_by_name(dstip)
+    src: Dict[str, float] = gi.record_by_name('x.xxx.xxx.xxx')
     try:
-        dstlongitude = dst['longitude']
-        dstlatitude  = dst['latitude']
-        srclongitude = src['longitude']
-        srclatitude = src['latitude']
-        kml = (
+        dstlongitude: float = dst['longitude']
+        dstlatitude: float  = dst['latitude']
+        srclongitude: float = src['longitude']
+        srclatitude: float = src['latitude']
+        kml: str = (
             '<Placemark>\n'
             '<name>%s</name>\n'
             '<extrude>1</extrude>\n'
@@ -27,23 +28,23 @@ def retKML(dstip, srcip):
     except:
         return ''
 
-def plotIPs(pcap):
-    kmlPts = ''
+def plotIPs(pcap: dpkt.pcap.Reader) -> str:
+    kmlPts: str = ''
     for(ts, buf) in pcap:
         try:
-            eth = dpkt.ethernet.Ethernet(buf)
-            ip = eth.data
-            src = socket.inet_ntoa(ip.src)
-            dst = socket.inet_ntoa(ip.dst)
-            KML = retKML(dst, src)
-            kmlPts = kmlPts + KML
+            eth: dpkt.ethernet.Ethernet = dpkt.ethernet.Ethernet(buf)
+            ip: dpkt.ip.IP = eth.data
+            src: str = socket.inet_ntoa(ip.src)
+            dst: str = socket.inet_ntoa(ip.dst)
+            KML: str = retKML(dst, src)
+            kmlPts += KML
         except:
             pass
     return kmlPts
 
-def main():
+def main() -> None:
     f = open('wire.pcap', 'rb')
-    pcap = dpkt.pcap.Reader(f)
+    pcap: dpkt.pcap.Reader = dpkt.pcap.Reader(f)
     kmlheader = '<?xml version="1.0" encoding="UTF-8"?> \n<kml xmlns="https://www.opengis.net/kml/2.2">\n<Document>\n'\
         '<Style id="transBluePoly">'\
             '<LineStyle>'\
@@ -51,8 +52,8 @@ def main():
             '<color>501400E6</color>'\
             '</LineStyle>'\
             '</Style>'
-    kmlfooter = '</Document>\n</kml>\n'
-    kmldoc = kmlheader + plotIPs(pcap) + kmlfooter
+    kmlfooter: str = '</Document>\n</kml>\n'
+    kmldoc: str = kmlheader + plotIPs(pcap) + kmlfooter
     print(kmldoc)
 
 if __name__ == "__main__":
